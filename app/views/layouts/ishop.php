@@ -137,10 +137,10 @@ use wfm\View;
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link" href="category.html">Компьютері</a>
+                                <a class="nav-link" href="category.html">Компьютер</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="category.html">Планшетикі</a>
+                                <a class="nav-link" href="category.html">Планшеты</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
