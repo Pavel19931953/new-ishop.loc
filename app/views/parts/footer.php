@@ -9,7 +9,7 @@ use wfm\View;
                 <div class="col-md-3 col-6">
                     <h4>Информация</h4>
                     <ul class="list-unstyled">
-                        <li><a href="#">Главная</a></li>
+                        <li><a href="#">Главнаяяяяяя</a></li>
                         <li><a href="#">О магазине</a></li>
                         <li><a href="#">Оплата и доставка</a></li>
                         <li><a href="#">Контакты</a></li>
