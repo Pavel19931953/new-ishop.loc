@@ -1,13 +1,16 @@
 <?php
 
+
 namespace wfm;
+
 
 class Router
 {
+
     protected static array $routes = [];
     protected static array $route = [];
 
-    public static function add(string $regexp, array $route = []): void
+    public static function add($regexp, $route = [])
     {
         self::$routes[$regexp] = $route;
     }
@@ -22,47 +25,46 @@ class Router
         return self::$route;
     }
 
-    protected static function removeQueryString(string $url): string
+    protected static function removeQueryString($url)
     {
-        $url = strtok($url, '?'); // Удаление всего после ?
-        return rtrim($url, '/');
+        if ($url) {
+            $params = explode('&', $url, 2);
+            if (false === str_contains($params[0], '=')) {
+                return rtrim($params[0], '/');
+            }
+        }
+        return '';
     }
 
-    public static function dispatch(string $url): void
+    public static function dispatch($url)
     {
         $url = self::removeQueryString($url);
-        try {
-            if (self::matchRoute($url)) {
-                $controller = 'app\controllers\\' . self::$route['admin_prefix'] . self::$route['controller'] . 'Controller';
-                if (class_exists($controller)) {
-                    $controllerObject = new $controller(self::$route);
-                    $controllerObject->getModel();
+        if (self::matchRoute($url)) {
+            $controller = 'app\controllers\\' . self::$route['admin_prefix'] . self::$route['controller'] . 'Controller';
+            if (class_exists($controller)) {
 
-                    $action = self::lowerCamelCase(self::$route['action'] . 'Action');
-                    if (method_exists($controllerObject, $action)) {
-                        $controllerObject->$action();
-                        $controllerObject->getView();
-                    } else {
-                        throw new \Exception("Метод {$controller}::{$action} не найден", 404);
-                    }
+                /** @var Controller $controllerObject */
+                $controllerObject = new $controller(self::$route);
+
+                $controllerObject->getModel();
+
+                $action = self::lowerCamelCase(self::$route['action'] . 'Action');
+                if (method_exists($controllerObject, $action)) {
+                    $controllerObject->$action();
+                    $controllerObject->getView();
                 } else {
-                    throw new \Exception("Контроллер {$controller} не найден", 404);
+                    throw new \Exception("Метод {$controller}::{$action} не найден", 404);
                 }
             } else {
-                throw new \Exception("Страница не найдена", 404);
+                throw new \Exception("Контроллер {$controller} не найден", 404);
             }
-        } catch (\Exception $e) {
-            http_response_code($e->getCode()); // Устанавливаем код ответа
-            if ($e->getCode() === 404) {
-                require 'views/404.php'; // Подключаем страницу 404
-            } else {
-                // Обрабатываем другие ошибки
-                echo 'Произошла ошибка: ' . $e->getMessage();
-            }
+
+        } else {
+            throw new \Exception("Страница не найдена", 404);
         }
     }
 
-    public static function matchRoute(string $url): bool
+    public static function matchRoute($url): bool
     {
         foreach (self::$routes as $pattern => $route) {
             if (preg_match("#{$pattern}#", $url, $matches)) {
@@ -74,7 +76,11 @@ class Router
                 if (empty($route['action'])) {
                     $route['action'] = 'index';
                 }
-                $route['admin_prefix'] = $route['admin_prefix'] ?? '';
+                if (!isset($route['admin_prefix'])) {
+                    $route['admin_prefix'] = '';
+                } else {
+                    $route['admin_prefix'] .= '\\';
+                }
                 $route['controller'] = self::upperCamelCase($route['controller']);
                 self::$route = $route;
                 return true;
@@ -83,13 +89,16 @@ class Router
         return false;
     }
 
-    protected static function upperCamelCase(string $name): string
+    // CamelCase
+    protected static function upperCamelCase($name): string
     {
         return str_replace(' ', '', ucwords(str_replace('-', ' ', $name)));
     }
 
-    protected static function lowerCamelCase(string $name): string
+    // camelCase
+    protected static function lowerCamelCase($name): string
     {
         return lcfirst(self::upperCamelCase($name));
     }
+
 }
